@@ -1,15 +1,24 @@
 pipeline {
-    agent any
+    agent {
+        dockerfile {
+            dir 'sample-app/backend'
+        }
+    }
 
     options {
         timeout(time: 3, unit: 'MINUTES')
     }
 
     stages {
-        stage('Build') {
+        stage('Tests') {
             steps {
-                echo 'Inside build stage'
-                sh 'ls -lh'
+                sh "pytest -vvv"
+            }
+        }
+
+        stage('System info') {
+            steps {
+                sh 'python sample-app/backend/main.py'
             }
         }
     }
