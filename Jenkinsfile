@@ -1,24 +1,35 @@
 pipeline {
-    agent {
-        dockerfile {
-            dir 'sample-app/backend'
-        }
-    }
+    agent none
 
     options {
-        timeout(time: 3, unit: 'MINUTES')
+        timeout(time: 15, unit: 'MINUTES')
+    }
+
+    environment {
+        CI = "true"
     }
 
     stages {
-        stage('Tests') {
+        stage('Backend Build') {
+            agent {
+                dockerfile {
+                    dir 'sample-app/backend'
+                }
+            }
             steps {
-                sh "pytest -vvv"
+                sh 'python /app/main.py'
+                sh "pytest -vvv /app"
             }
         }
 
-        stage('System info') {
+        stage("Frontend Build") {
+            agent {
+                dockerfile {
+                    dir 'sample-app/frontend'
+                }
+            }
             steps {
-                sh 'python sample-app/backend/main.py'
+                sh "cd /app && npm run test"
             }
         }
     }
